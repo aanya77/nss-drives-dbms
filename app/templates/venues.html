@@ -1,0 +1,261 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSS | Venue Management</title>
+
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7f5;
+            color: #26352d;
+        }
+
+        header {
+            background: #245c42;
+            color: white;
+            padding: 22px 40px;
+        }
+
+        header h1 { margin: 0; }
+        header p { color: #dcece2; }
+
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 10px #00000010;
+        }
+
+        h2 { color: #245c42; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        input {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccd8d0;
+            border-radius: 6px;
+        }
+
+        button {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .add-btn { background: #27834e; margin-top: 15px; }
+        .update-btn { background: #3479bd; }
+        .delete-btn { background: #cf4949; }
+
+        .flash {
+            padding: 13px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        .success { background: #d9f2df; color: #206b36; }
+        .error { background: #f9dddd; color: #a12d2d; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 13px;
+            text-align: left;
+            border-bottom: 1px solid #e4ebe6;
+        }
+
+        th {
+            background: #eaf2ed;
+            color: #245c42;
+        }
+
+        .table-wrapper { overflow-x: auto; }
+
+        .edit-form {
+            display: grid;
+            gap: 7px;
+            min-width: 170px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        nav {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        nav a { color: white; }
+
+        @media(max-width: 800px) {
+            .form-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>NSS Drive Management System</h1>
+    <p>Venue Management Dashboard</p>
+
+    <nav>
+        <a href="{{ url_for('volunteers') }}">Volunteers</a>
+        <a href="{{ url_for('drives') }}">Drives</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="card">
+        <h2>Add New Venue</h2>
+
+        <form action="{{ url_for('add_venue') }}" method="POST">
+
+            <div class="form-grid">
+
+                <input type="number" name="Venue_ID"
+                       placeholder="Venue ID" required>
+
+                <input type="text" name="Venue_Name"
+                       placeholder="Venue Name" required>
+
+                <input type="text" name="Address"
+                       placeholder="Address" required>
+
+                <input type="number" name="Capacity"
+                       placeholder="Capacity" min="1" required>
+
+            </div>
+
+            <button class="add-btn" type="submit">
+                + Add Venue
+            </button>
+
+        </form>
+    </div>
+
+    <div class="card">
+
+        <h2>Registered Venues</h2>
+
+        <p>Total Venues: {{ venues|length }}</p>
+
+        <div class="table-wrapper">
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Venue Name</th>
+                        <th>Address</th>
+                        <th>Capacity</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for venue in venues %}
+
+                    <tr>
+                        <td>{{ venue.Venue_ID }}</td>
+                        <td>{{ venue.Venue_Name }}</td>
+                        <td>{{ venue.Address }}</td>
+                        <td>{{ venue.Capacity }}</td>
+
+                        <td>
+                            <div class="actions">
+
+                                <form action="{{ url_for('update_venue') }}"
+                                      method="POST" class="edit-form">
+
+                                    <input type="hidden" name="Venue_ID"
+                                           value="{{ venue.Venue_ID }}">
+
+                                    <input type="text" name="Venue_Name"
+                                           value="{{ venue.Venue_Name }}" required>
+
+                                    <input type="text" name="Address"
+                                           value="{{ venue.Address }}" required>
+
+                                    <input type="number" name="Capacity"
+                                           value="{{ venue.Capacity }}"
+                                           min="1" required>
+
+                                    <button class="update-btn" type="submit">
+                                        Update
+                                    </button>
+
+                                </form>
+
+                                <form action="{{ url_for('delete_venue') }}"
+                                      method="POST"
+                                      onsubmit="return confirm('Are you sure you want to delete this venue?');">
+
+                                    <input type="hidden" name="Venue_ID"
+                                           value="{{ venue.Venue_ID }}">
+
+                                    <button class="delete-btn" type="submit">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="5">No venues found.</td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

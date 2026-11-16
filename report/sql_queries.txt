@@ -1,0 +1,119 @@
+
+-- 1. DISPLAY ALL VOLUNTEERS
+SELECT *
+FROM volunteer
+ORDER BY Volunteer_ID;
+
+
+-- 2. INSERT A VOLUNTEER
+INSERT INTO volunteer
+(Volunteer_ID, First_Name, Last_Name, Email, Gender)
+VALUES (%s, %s, %s, %s, %s);
+
+
+-- 3. UPDATE A VOLUNTEER
+UPDATE volunteer
+SET First_Name = %s,
+    Last_Name = %s,
+    Email = %s,
+    Gender = %s
+WHERE Volunteer_ID = %s;
+
+
+-- 4. DELETE A VOLUNTEER
+DELETE FROM volunteer
+WHERE Volunteer_ID = %s;
+
+
+-- 5. DISPLAY ALL DRIVES
+SELECT *
+FROM drive
+ORDER BY Drive_ID;
+
+
+-- 6. INSERT A DRIVE
+INSERT INTO drive
+(Drive_ID, Drive_Name, Cause, Start_Date, End_Date)
+VALUES (%s, %s, %s, %s, %s);
+
+
+-- 7. UPDATE A DRIVE
+UPDATE drive
+SET Drive_Name = %s,
+    Cause = %s,
+    Start_Date = %s,
+    End_Date = %s
+WHERE Drive_ID = %s;
+
+
+-- 8. DELETE A DRIVE
+DELETE FROM drive
+WHERE Drive_ID = %s;
+
+
+-- 9. DISPLAY ALL VENUES
+SELECT *
+FROM venue
+ORDER BY Venue_ID;
+
+
+-- 10. INSERT A VENUE
+INSERT INTO venue
+(Venue_ID, Venue_Name, Address, Capacity)
+VALUES (%s, %s, %s, %s);
+
+
+-- 11. UPDATE A VENUE
+UPDATE venue
+SET Venue_Name = %s,
+    Address = %s,
+    Capacity = %s
+WHERE Venue_ID = %s;
+
+
+-- 12. DELETE A VENUE
+DELETE FROM venue
+WHERE Venue_ID = %s;
+
+
+-- 13. REPORT: VOLUNTEER PARTICIPATION
+SELECT
+    v.Volunteer_ID,
+    v.First_Name,
+    v.Last_Name,
+    d.Drive_ID,
+    d.Drive_Name
+FROM volunteer v
+LEFT JOIN attends a
+    ON v.Volunteer_ID = a.Volunteer_ID
+LEFT JOIN drive d
+    ON a.Drive_ID = d.Drive_ID
+ORDER BY v.Volunteer_ID, d.Drive_ID;
+
+
+-- 14. REPORT: TOTAL CERTIFIED HOURS
+SELECT
+    v.Volunteer_ID,
+    v.First_Name,
+    v.Last_Name,
+    COALESCE(SUM(c.Hours), 0) AS Total_Hours
+FROM volunteer v
+LEFT JOIN certifies c
+    ON v.Volunteer_ID = c.Volunteer_ID
+GROUP BY
+    v.Volunteer_ID,
+    v.First_Name,
+    v.Last_Name
+ORDER BY v.Volunteer_ID;
+
+
+-- 15. REPORT: DRIVES WITHOUT VOLUNTEERS
+SELECT
+    d.Drive_ID,
+    d.Drive_Name,
+    d.Cause
+FROM drive d
+LEFT JOIN attends a
+    ON d.Drive_ID = a.Drive_ID
+WHERE a.Volunteer_ID IS NULL
+ORDER BY d.Drive_ID;
